@@ -17,7 +17,7 @@
   - backend는 `target_stack.backend`로 선택(기본 `spring`; `nestjs`·`django` 가능)
   - 클라이언트는 `target_stack.clients`로 선택(기본 `[web]`; `desktop`·`mobile` 추가 가능)
 - **언어 규칙**: 문서(README/INVENTORY/본 문서)는 한국어, 각 스킬 파일 본문은 영어
-- **스킬 총계**: 30개 카테고리, **280개 스킬** (backend=spring/nestjs/django 3폴더, frontend=web/desktop/mobile 3폴더가 각각 한 카테고리)
+- **스킬 총계**: 32개 카테고리, **299개 스킬** (backend=spring/nestjs/django 3폴더, frontend=web/desktop/mobile 3폴더가 각각 한 카테고리)
 
 | 카테고리 | 수 | 역할 |
 |----------|----|------|
@@ -25,14 +25,16 @@
 | docs-analyze | 6  | 입력 문서/데이터 파싱 |
 | blueprint | 6  | 설계 산출물 생성 (코드 아님) + 스펙 검증기 |
 | design | 6  | 디자인 시스템/토큰/플로우 + 스펙 검증기 |
-| backend | 58 | 백엔드 코드 생성 — 폴더 3개(spring 20 / nestjs 19 / django 19), `target_stack.backend`로 택1 |
+| backend | 60 | 백엔드 코드 생성 — 폴더 3개(spring 20 / nestjs 20 / django 20), `target_stack.backend`로 택1 |
 | frontend | 42 | 클라이언트 코드 생성 — 폴더 3개(web 21 / desktop 8 / mobile 13), `target_stack.clients`로 선택 |
-| validator | 8  | 산출물 검증 |
+| validator | 10 | 산출물 검증 (클라이언트별 mobile/desktop 검증기 포함) |
 | code-change | 4  | 기존 코드 수정/리팩토링/삭제 (생성 아님; senior-programmer 위임) |
 | data-change | 4  | 기존 데이터 증분 수정·참조무결성 삭제 + 자가치유 루프 (seed-data·localization·knowledge-base·data-analysis·audit; 도메인 생성기·검증기 위임) |
 | doc-change | 4  | 기존 산문 문서 섹션 개정·교차참조 지킨 삭제 + 자가치유 루프 (docwriting·proposal; 생성기·게이트 위임) |
 | spec-change | 3  | 기존 설계 스펙 개정·삭제 + 코드 파급 (blueprint·design; L2↔L3 브리지, code-change·validation 위임) |
 | deployment | 3  | CI/CD + 환경설정 (컨테이너 없음) |
+| vcs | 13 | git/VCS 운영 (브랜치 안전; **실행형**: repo init·브랜치·커밋·통합 cherry-pick/merge·changelog/PR·커밋린트) |
+| codegen | 2  | 직렬화 페이로드(JSON/XML) → 언어별 타입 모델 + Kotlin 구현 위임 (독립 유틸리티) |
 | research | 10 | 웹/문서/코드 리서치 (독립 파이프라인) |
 | docwriting | 8  | 코드/요구사항 → 문서 (독립 파이프라인) |
 | audit | 8  | 문서 규정 준수 감사 (독립 파이프라인, 검증기 포함) |
@@ -86,6 +88,7 @@
 
   입력 어댑터: docs-analyze/*  (문서 → 통합 요구사항)
   배포 어댑터: deployment/*    (CI/CD + env, 컨테이너 없음)
+  운영 계층:   vcs/*           (git/VCS 실행 — 브랜치 안전; 생성 계층과 달리 실제 저장소 상태를 조작)
   별도 도메인: research/*      (앱 생성과 독립된 리서치 파이프라인)
              docwriting/*   (앱 생성과 독립된 문서 작성 파이프라인)
              audit/*        (앱 생성과 독립된 문서 규정 준수 감사 파이프라인)
@@ -135,6 +138,7 @@ app-orchestrator
 ├─ 8  review-orchestrator     커버리지/제안/잔여 태스크
 ├─ 8b data-pipeline-orchestrator (선택: options.compose_data — 시드데이터+현지화 채움, data-remediation 자가치유)
 ├─ 8c doc-pipeline-orchestrator (선택: options.compose_docs — API가이드+릴리스노트 생성, doc-remediation 자가치유)
+├─ 8d vcs-orchestrator (선택: options.init_vcs — 브랜치 안전 커밋/통합(cherry-pick·merge)/changelog/PR; 보호브랜치 직접 안 건드림)
 └─ 9  deployment-orchestrator (선택: cicd + env-config, 컨테이너 없음)
 ```
 
@@ -145,6 +149,7 @@ app-orchestrator
 - remediation은 `max_remediation_iterations`로 상한. 미해결분은 `remaining_tasks`로 반환.
 - 클라이언트 확장(4b)은 웹 feature 루프 완료 후 실행. `desktop`은 완성된 웹 산출물을 재사용하므로 web 이후에만 가능; `mobile`은 blueprint+design_system+api_spec만 있으면 독립적으로 생성.
 - deployment는 검증 통과 + 리뷰 완료 후에만 실행(선택).
+- vcs(8d)는 생성 이후 실행(선택) — 산출물을 **작업 브랜치**에 커밋/통합하며 보호 브랜치(main/develop)에 직접 커밋·force·history 재작성 안 함. 실제 git을 실행하는 유일한 **운영형** 계층.
 
 ---
 
@@ -161,7 +166,7 @@ app-orchestrator
 | feature-orchestrator | backend-orchestrator / frontend-orchestrator / integration-generator |
 | backend-orchestrator | backend/* 16종 생성기 |
 | frontend-orchestrator | web/* 19종 생성기 |
-| validation-orchestrator | validator/* 8종 |
+| validation-orchestrator | validator/* 10종 (mobile/desktop은 clients 조건부) |
 | remediation-orchestrator | code-change-orchestrator(외과수정) + execution(재생성) + validation |
 | project-planner / execution-orchestrator / review-orchestrator | (하위 호출 없음) |
 
@@ -191,17 +196,17 @@ event-topology) 계약을 입력으로 공유하며, 구현은 각 스택 senior
 migration · config-properties · observability · notification · file-storage ·
 websocket · api-docs · integration · backend-test
 
-**nestjs/ (19) — NestJS + TypeORM** (nestjs)
+**nestjs/ (20) — NestJS + TypeORM** (nestjs)
 진입: `nestjs-backend-orchestrator` · 초기화: `nestjs-initializer` · 구현: `nestjs-senior-programmer`
 생성기: domain · api · auth · event(EventEmitter2) · messaging · cache · scheduler ·
 queue(BullMQ) · migration · config · observability · notification · file-storage ·
-websocket(gateway) · api-docs(Nest Swagger) · test(Jest)
+websocket(gateway) · api-docs(Nest Swagger) · integration(axios) · test(Jest)
 
-**django/ (19) — Django + DRF** (django)
+**django/ (20) — Django + DRF** (django)
 진입: `django-backend-orchestrator` · 초기화: `django-initializer` · 구현: `django-senior-programmer`
 생성기: model · api(DRF) · auth · signals · celery · cache · scheduler(beat) ·
 task(mgmt command) · migration · settings · observability · notification · storage ·
-channels · api-docs(drf-spectacular) · test(pytest)
+channels · api-docs(drf-spectacular) · integration(httpx) · test(pytest)
 
 ### web/ (21) — Next.js
 초기화: `nextjs-initializer` · 구현 위임: `typescript-senior-programmer`
@@ -227,13 +232,38 @@ Dio)은 계약으로 재사용. 구현 위임: `flutter-senior-programmer`(Dart 
 `flutter-form-generator` · `flutter-notification-generator`(FCM+로컬) · `flutter-test-generator`.
 모든 스킬은 `web/*`와의 이름 충돌 방지를 위해 `flutter-*`/`mobile-*` 접두사.
 
-### validator/ (8) — 검증 계층
-`architecture · backend · frontend · integration · security · performance ·
+### validator/ (10) — 검증 계층
+`architecture · backend · frontend · mobile · desktop-shell · integration · security · performance ·
 dependency-license · test` — 각자 `validation_result` 스키마로 pass/fail 반환.
+`mobile-validator`(Flutter/Dart)·`desktop-shell-validator`(Tauri 셸/설정/IPC/패키징)는
+`target_stack.clients`에 해당 클라이언트가 있을 때만 실행(웹 React UI는 frontend-validator 소관).
 
 ### deployment/ (3) — 배포 (컨테이너 없음)
 `deployment-orchestrator · cicd-generator · env-config-generator`
 CI/CD 파이프라인 + 스크립트 + 환경별 env 템플릿. 배포 대상은 사용자 인프라에 위임.
+
+### vcs/ (13) — git/VCS 운영 (브랜치 안전, **실행형**)
+`vcs-orchestrator`가 진입점(git 직접 실행 안 함, 위임만). 생성 계층과 달리 **실제 git을
+실행**하는 유일한 운영 계층이며, 전 스킬이 **브랜치 안전 운영 계약**을 강제한다: 보호
+브랜치(main/develop)에 직접 커밋·force-push·history 재작성 금지 · 모든 작업은 작업 브랜치
+경유 · stash-안전 · 충돌 시 클린 abort+복구 리포트 · 작업 후 원 브랜치 복귀 · 운영 전
+preflight 게이트.
+- **게이트(2)**: `repo-state-validator`(상태 preflight) · `commit-lint-validator`(Conventional Commit·브랜치명 준수).
+- **플래너(6, git 미실행)**: `branch-strategy-planner` · `commit-message-generator` · `integration-planner` · `changelog-generator` · `pr-description-generator` · `git-hooks-generator`.
+- **오퍼레이터(4, git 실행)**: `repo-initializer` · `branch-operator` · `commit-applier` · `branch-integrator`(cherry-pick/merge, 원격+보호target은 PR).
+`app-orchestrator`가 `options.init_vcs`로 선택 호출(생성 이후). `changelog-generator`(기계적 로그)는
+`docwriting/release-notes-generator`(편집 산문)와, `git-hooks-generator`(로컬 훅)는 `cicd-generator`(CI)와 별개.
+
+### codegen/ (2) — 독립 코드 생성 유틸리티
+`payload-model-generator`가 진입 스킬. 구체적인 JSON/XML **응답 샘플**을 입력받아 포맷을
+감지하고 스키마(타입·널 가능성·배열·중첩)를 추론해, 요청 언어(Java·Kotlin·TypeScript·
+Python)의 타입 모델(DTO/data class/interface)을 **직렬화 매핑**(Jackson·kotlinx.serialization·
+class-transformer·Pydantic)까지 포함해 생성. XML은 attribute·child element·wrapper list·
+text content를 구분해 매핑. 구현은 언어별 senior-programmer에 위임 — Java→`spring-senior-programmer`,
+Kotlin→`kotlin-senior-programmer`(Kotlin 스택 폴더가 없어 codegen이 소유), TypeScript→
+`typescript-senior-programmer`, Python→`django-senior-programmer`.
+**앱 생성 파이프라인과 독립**이며 blueprint/design 없이 단독 호출 가능. **모델만** 산출하고
+엔드포인트·HTTP 클라이언트·OpenAPI는 만들지 않음(§5 API 경계 참조).
 
 ### research/ (10) — 독립 리서치 파이프라인
 `research-orchestrator`가 진입점. 검색(web/docs/github/news) → web-research →
@@ -314,7 +344,7 @@ packing-list-generator → trip-feasibility-validator(이동시간·영업시간
 
 ### recipe-kitchen (6) · quiz-forge (6) · fitness-coach (6) — 여가 파이프라인
 - **recipe-kitchen**: pantry-analyzer → recipe-developer → meal-planner → shopping-list-generator
-  → nutrition-balancer(영양·알레르기 pass/fail). 영양은 정성적 추정.
+  → nutrition-validator(영양·알레르기 pass/fail). 영양은 정성적 추정.
 - **quiz-forge**: quiz-blueprint-planner → question-generator → distractor-designer →
   answer-key-builder → quiz-fairness-validator(단일 정답·난이도·편향 pass/fail).
 - **fitness-coach**: fitness-profiler → program-designer → workout-builder → progression-planner
@@ -335,8 +365,11 @@ packing-list-generator → trip-feasibility-validator(이동시간·영업시간
 
 겹치기 쉬운 스킬 간 소유권을 명확히 정한 규칙입니다. (전문은 INVENTORY.md 참조)
 
-- **API 3종 분리**: `api-generator`(런타임 코드) ↔ `api-spec-generator`(설계 문서) ↔
-  `api-docs-generator`(springdoc/Swagger 애노테이션). 셋 다 별개.
+- **API 5종 분리**: `api-generator`(런타임 코드) ↔ `api-spec-generator`(설계 문서) ↔
+  `api-docs-generator`(springdoc/Swagger 애노테이션) ↔ `api-client-generator`(프론트 HTTP
+  클라이언트) ↔ `payload-model-generator`(관측된 JSON/XML 샘플 → 타입 모델만). 앞의 넷은
+  **api-spec 설계 계약** 기반, `payload-model-generator`는 **구체 직렬화 샘플** 기반이며
+  **모델만** 산출(엔드포인트·클라이언트·OpenAPI 생성 안 함). 다섯 다 별개.
 - **이벤트/메시징 3종**: `event-generator`(인프로세스 Spring 이벤트) ↔
   `messaging-generator`(브로커, Redis Pub/Sub 포함) ↔ `websocket-generator`(클라이언트 대면).
 - **스케줄 vs 배치**: 스케줄 트리거는 `scheduler-generator`, 대량 처리 잡은 `batch-generator`.
@@ -382,7 +415,7 @@ packing-list-generator → trip-feasibility-validator(이동시간·영업시간
 name: <kebab-case, 파일명과 반드시 일치>
 description: <한 줄. "무엇을 언제 쓰는지">
 version: 1.0.0
-category: orchestrator | docs-analyze | blueprint | backend | frontend | design | validator | code-change | data-change | doc-change | spec-change | deployment | research | docwriting | audit | proposal | asset | seed-data | data-analysis | knowledge-base | localization | game-master | story-studio | trip-planner | recipe-kitchen | quiz-forge | fitness-coach | event-planner | media-curator | music-curator
+category: orchestrator | docs-analyze | blueprint | backend | frontend | design | validator | code-change | data-change | doc-change | spec-change | deployment | vcs | codegen | research | docwriting | audit | proposal | asset | seed-data | data-analysis | knowledge-base | localization | game-master | story-studio | trip-planner | recipe-kitchen | quiz-forge | fitness-coach | event-planner | media-curator | music-curator
 tags: [<검색용 키워드…>]
 model: inherit
 invokes: [<하위 스킬 name…>]   # 오케스트레이터만. DAG 단일 소스. 없으면 생략
@@ -405,7 +438,7 @@ outputs: [<출력…>]
 ```
 검증기(validator):
 ```
-# Goal / # Scope / # Checks / # Pass-Fail Criteria / # Output Schema(필수) / # Examples
+# Goal / # Scope / # Checks / # Pass/Fail Criteria / # Output Schema(필수) / # Examples
 ```
 - 모든 스킬에 `# Examples` 필수(최소 1개 end-to-end 예시).
 - 새 스킬은 [_template.md](_template.md)로 시작.

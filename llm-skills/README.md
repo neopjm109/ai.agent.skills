@@ -9,25 +9,26 @@
 
 ---
 
-## 카테고리 요약 (30개 카테고리 · 280 스킬 · 34 폴더)
+## 카테고리 요약 (32개 카테고리 · 299 스킬 · 36 폴더)
 
 > `backend`·`frontend`는 계층 하나가 여러 스택/타깃 폴더로 나뉜다(폴더=변형, category=계층).
 
-### 앱 생성·변경 파이프라인 (12 · 157)
+### 앱 생성·변경 파이프라인 (13 · 172)
 | category | 수 | 역할 |
 |----------|---:|------|
 | orchestrator | 13 | 파이프라인 제어 (직접 코드 생성 안 함; app + data + doc 파이프라인) |
 | docs-analyze | 6 | 입력 문서/데이터 파싱 (docx/pptx/xlsx/markdown/pdf/csv) |
 | blueprint | 6 | 설계 산출물 (architecture/domain-model/database/api-spec/event-topology) + 스펙 검증기 |
 | design | 6 | 디자인 시스템/토큰/플로우 + 스펙 검증기 |
-| backend | 58 | 백엔드 — `spring`(20)·`nestjs`(19)·`django`(19), `target_stack.backend`로 택1 |
+| backend | 60 | 백엔드 — `spring`(20)·`nestjs`(20)·`django`(20), `target_stack.backend`로 택1 |
 | frontend | 42 | 클라이언트 — `web`(21)·`desktop`(8)·`mobile`(13), `target_stack.clients`로 선택 |
-| validator | 8 | 산출물 검증 (pass/fail + validation_result) |
+| validator | 10 | 산출물 검증 (pass/fail + validation_result); 클라이언트별 mobile/desktop 검증기 포함 |
 | code-change | 4 | 기존 코드 수정/리팩토링/삭제 (생성 아님; senior-programmer 위임) |
 | data-change | 4 | 기존 데이터 증분 수정·참조무결성 삭제 + 자가치유 루프 (seed-data·localization·knowledge-base·data-analysis·audit; 도메인 생성기·검증기 위임) |
 | doc-change | 4 | 기존 산문 문서 섹션 개정·교차참조 지킨 삭제 + 자가치유 루프 (docwriting·proposal 대상; 생성기·게이트 위임) |
 | spec-change | 3 | 기존 설계 스펙 개정·삭제 + 코드 파급 (blueprint·design; L2↔L3 브리지, code-change·validation 위임) |
 | deployment | 3 | CI/CD + 환경설정 (컨테이너 없음) |
+| vcs | 13 | git/VCS 운영 — repo init·브랜치·커밋·통합(cherry-pick/merge)·changelog/PR + 커밋린트 (브랜치 안전; **실행형** 계층) |
 
 ### 독립 업무 도메인 (9 · 66)
 | category | 수 | 역할 |
@@ -55,7 +56,12 @@
 | media-curator | 6 | 영화/도서 큐레이션 (research 재활용) |
 | music-curator | 6 | 플레이리스트 큐레이션 (research 재활용) |
 
-**합계: 157 + 66 + 57 = 280 스킬** · 독립 도메인 18개(업무 9 + 여가 9) → 상세는 [DOMAINS.md](DOMAINS.md)
+### 독립 유틸리티 (1 · 2)
+| category | 수 | 역할 |
+|----------|---:|------|
+| codegen | 2 | 직렬화 페이로드(JSON/XML) → 언어별 타입 모델(DTO/class/interface) + 매핑 (payload-model-generator + kotlin-senior-programmer; 오케스트레이터 없는 단독 유틸리티) |
+
+**합계: 174 + 66 + 57 + 2 = 299 스킬** · 독립 도메인 18개(업무 9 + 여가 9) + 독립 유틸리티 1개 카테고리 → 도메인 상세는 [DOMAINS.md](DOMAINS.md)
 
 ---
 
@@ -79,6 +85,8 @@ oliver-skills/
 ├── doc-change/     기존 산문 문서 섹션 개정·삭제 + 자가치유 (doc-change-orchestrator / doc-remediation-orchestrator / doc-modifier / doc-remover) — docwriting·proposal 대상, 생성기·게이트 위임
 ├── spec-change/    기존 설계 스펙 개정·삭제 + 코드 파급 (spec-change-orchestrator / spec-modifier / spec-remover) — blueprint·design 대상, L2↔L3 브리지(code-change·validation 위임)
 ├── deployment/     배포 (컨테이너 없음: deployment-orchestrator / cicd / env-config) — CI/CD + 스크립트 + 환경설정
+├── vcs/            git/VCS 운영 (vcs-orchestrator + repo-init/branch/commit/integrate(cherry-pick·merge)/changelog/PR/hooks + repo-state/commit-lint 게이트) — 브랜치 안전, **실행형**(실제 git 실행)
+├── codegen/        직렬화 페이로드 → 언어별 타입 모델 (payload-model-generator: JSON/XML → Java·Kotlin·TypeScript·Python DTO/class/interface + 매핑) + kotlin-senior-programmer(구현 위임) — 앱 생성과 독립 유틸리티
 ├── research/       웹/문서/코드 리서치 파이프라인 (앱 생성과 독립)
 ├── docwriting/     문서 작성 파이프라인 (outline/draft/api-guide/release-notes/adr/style-check/translate) — 코드→문서, 앱 생성과 독립
 ├── audit/          문서 규정 준수 감사 파이프라인 (ruleset-loader/clause-extractor/conformance-checker/gap-analyzer/risk-scorer/report/validator) — 문서 평가, 앱 생성과 독립
@@ -114,7 +122,7 @@ oliver-skills/
 name: <kebab-case, 파일명과 반드시 일치>
 description: <한 줄. "무엇을 언제 쓰는지"가 드러나게>
 version: 1.0.0
-category: orchestrator | docs-analyze | blueprint | backend | frontend | design | validator | code-change | data-change | doc-change | spec-change | deployment | research | docwriting | audit | proposal | asset | seed-data | data-analysis | knowledge-base | localization | game-master | story-studio | trip-planner | recipe-kitchen | quiz-forge | fitness-coach | event-planner | media-curator | music-curator
+category: orchestrator | docs-analyze | blueprint | backend | frontend | design | validator | code-change | data-change | doc-change | spec-change | deployment | vcs | codegen | research | docwriting | audit | proposal | asset | seed-data | data-analysis | knowledge-base | localization | game-master | story-studio | trip-planner | recipe-kitchen | quiz-forge | fitness-coach | event-planner | media-curator | music-curator
 tags: [<검색용 키워드…>]
 model: inherit
 invokes: [<하위 스킬 name…>]   # 오케스트레이터만. DAG의 단일 소스. 없으면 [] 또는 생략
@@ -191,6 +199,7 @@ app-orchestrator
 │   └── validator/*                    (architecture/backend/frontend/integration/security/performance/dependency-license/test)
 ├── remediation-orchestrator           (검증 실패 시 code-change 외과수정 또는 execution 재생성 + validation 루프)
 ├── review-orchestrator
+├── vcs-orchestrator                    (선택: options.init_vcs — 브랜치 안전 커밋/통합/PR, 보호브랜치 직접 안 건드림)
 └── deployment-orchestrator            (선택: CI/CD + 스크립트 + 환경설정, 컨테이너 없음)
     ├── cicd-generator
     └── env-config-generator

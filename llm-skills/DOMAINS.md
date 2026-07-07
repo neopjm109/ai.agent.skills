@@ -47,7 +47,7 @@
 | [media-curator](media-curator/) | `media-curator-orchestrator` | 취향 → 영화/도서 추천·시청 순서 (research 재활용) | 6 |
 | [music-curator](music-curator/) | `music-curator-orchestrator` | 무드 → 플레이리스트·에너지 아크 (research 재활용) | 6 |
 
-**독립 도메인 스킬 합계: 123** (전체 280개 중) — 업무 66 + 여가 57
+**독립 도메인 스킬 합계: 123** (전체 299개 중) — 업무 66 + 여가 57
 
 > 변경 계층 참고: `data-change/*`(4)는 이 도메인들을 **생성이 아니라 변경**한다 —
 > seed-data·localization·knowledge-base·data-analysis 산출물을 입력 델타만 증분 upsert하거나
@@ -173,7 +173,7 @@ research-orchestrator(목적지 사실) → destination-profiler → itinerary-b
 ### recipe-kitchen — 집밥/요리 (여가)
 ```
 pantry-analyzer → recipe-developer → meal-planner → shopping-list-generator
-   → nutrition-balancer(영양·알레르기 pass/fail)
+   → nutrition-validator(영양·알레르기 pass/fail)
 ```
 영양은 정성적 추정(정확 열량은 별도 도구).
 
@@ -250,6 +250,18 @@ app-orchestrator → Spring + Next.js 코드
 - **mobile**(Flutter): 자체 Dart UI 생성, `design-tokens` 값 + backend `api-spec`만 계약으로 재사용.
 
 상세는 [ARCHITECTURE.md](ARCHITECTURE.md) §4(desktop/·mobile/)와 [INVENTORY.md](INVENTORY.md) 참조.
+
+---
+
+## 참고: 독립 유틸리티 (codegen)
+
+`codegen/`(2)는 파이프라인(blueprint/design) 없이 단독 호출되는 유틸리티입니다 — 위 독립 도메인
+집계(123)에는 포함되지 않습니다. `payload-model-generator`가 구체적인 JSON/XML 응답 샘플을
+언어별 타입 모델(Java·Kotlin·TypeScript·Python DTO/data class)로 직렬화 매핑까지 생성하고,
+`kotlin-senior-programmer`가 Kotlin 구현을 담당합니다. **api-spec 설계 계약이 아니라 관측된
+페이로드**에서 동작하며 **모델만** 산출(엔드포인트·클라이언트·OpenAPI 생성 안 함).
+
+상세는 [INVENTORY.md](INVENTORY.md) §codegen 참조.
 
 ---
 

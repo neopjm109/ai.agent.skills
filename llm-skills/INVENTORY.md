@@ -6,15 +6,15 @@
 ## orchestrator/ (13)
 | name | invokes |
 |------|---------|
-| app-orchestrator | docs-analyze-* (docx/pptx/xlsx/markdown/pdf), blueprint-orchestrator, design-orchestrator, spring-initializer, nextjs-initializer, project-planner, feature-orchestrator, desktop-orchestrator *(선택: clients에 desktop)*, mobile-orchestrator *(선택: clients에 mobile)*, execution-orchestrator, validation-orchestrator, remediation-orchestrator, review-orchestrator, data-pipeline-orchestrator *(선택: options.compose_data)*, doc-pipeline-orchestrator *(선택: options.compose_docs)*, deployment-orchestrator |
+| app-orchestrator | docs-analyze-* (docx/pptx/xlsx/markdown/pdf), blueprint-orchestrator, design-orchestrator, spring-initializer / nestjs-initializer / django-initializer *(택1: target_stack.backend)*, nextjs-initializer, project-planner, feature-orchestrator, desktop-orchestrator *(선택: clients에 desktop)*, mobile-orchestrator *(선택: clients에 mobile)*, execution-orchestrator, validation-orchestrator, remediation-orchestrator, review-orchestrator, data-pipeline-orchestrator *(선택: options.compose_data)*, doc-pipeline-orchestrator *(선택: options.compose_docs)*, vcs-orchestrator *(선택: options.init_vcs)*, deployment-orchestrator |
 | blueprint-orchestrator | architecture-generator, domain-model-generator, database-generator, api-spec-generator, event-topology-generator, blueprint-validator |
 | design-orchestrator *(new)* | design-tokens-generator, design-system-generator, ux-flow-generator, wireframe-generator, figma-to-component, design-validator |
 | project-planner | — |
-| feature-orchestrator | backend-orchestrator, frontend-orchestrator, integration-generator |
+| feature-orchestrator | backend-orchestrator, frontend-orchestrator, integration-generator / nestjs-integration-generator / django-integration-generator *(택1: target_stack.backend)* |
 | backend-orchestrator *(router)* | spring-backend-orchestrator, nestjs-backend-orchestrator, django-backend-orchestrator *(target_stack.backend로 1개 선택)* |
 | frontend-orchestrator | page-generator, layout-generator, component-generator, form-generator, table-generator, dialog-generator, chart-generator, hook-generator, state-generator, data-generator, api-client-generator, auth-generator, i18n-generator, middleware-generator, theme-generator, toast-notification-generator, realtime-client-generator, feature-generator, frontend-test-generator |
 | execution-orchestrator | — |
-| validation-orchestrator | architecture-validator, backend-validator, frontend-validator, integration-validator, security-validator, performance-validator, dependency-license-validator, test-validator |
+| validation-orchestrator | architecture-validator, backend-validator, frontend-validator, mobile-validator *(선택: clients에 mobile)*, desktop-shell-validator *(선택: clients에 desktop)*, integration-validator, security-validator, performance-validator, dependency-license-validator, test-validator |
 | remediation-orchestrator | execution-orchestrator, code-change-orchestrator *(외과적 수정)*, validation-orchestrator |
 | review-orchestrator | — |
 | deployment-orchestrator *(new, deployment/)* | cicd-generator, env-config-generator |
@@ -37,21 +37,21 @@ integration-generator, config-properties-generator, observability-generator,
 notification-generator, file-storage-generator, websocket-generator,
 api-docs-generator, spring-test-generator, spring-senior-programmer *(구현 위임, _deprecated/shared)*
 
-## nestjs/ (19) — NestJS 백엔드 (backend 스택 중 nestjs 타깃; TypeORM)
+## nestjs/ (20) — NestJS 백엔드 (backend 스택 중 nestjs 타깃; TypeORM)
 | name | invokes |
 |------|---------|
-| nestjs-backend-orchestrator *(new)* | nestjs-initializer, nestjs-domain-generator, nestjs-api-generator, nestjs-auth-generator, nestjs-event-generator, nestjs-messaging-generator, nestjs-cache-generator, nestjs-scheduler-generator, nestjs-queue-generator, nestjs-migration-generator, nestjs-config-generator, nestjs-observability-generator, nestjs-notification-generator, nestjs-file-storage-generator, nestjs-websocket-generator, nestjs-api-docs-generator, nestjs-test-generator |
-| nestjs-initializer *(new)* | — |
+| nestjs-backend-orchestrator *(new)* | nestjs-domain-generator, nestjs-api-generator, nestjs-auth-generator, nestjs-event-generator, nestjs-messaging-generator, nestjs-cache-generator, nestjs-scheduler-generator, nestjs-queue-generator, nestjs-migration-generator, nestjs-config-generator, nestjs-observability-generator, nestjs-notification-generator, nestjs-file-storage-generator, nestjs-websocket-generator, nestjs-api-docs-generator, nestjs-test-generator |
+| nestjs-initializer *(new)* | nestjs-senior-programmer *(구현 위임)* |
 | nestjs-senior-programmer *(new, 구현 위임; 오케스트레이터 invokes 아님)* | — |
-| nestjs-domain-generator · nestjs-api-generator · nestjs-auth-generator · nestjs-event-generator · nestjs-messaging-generator · nestjs-cache-generator · nestjs-scheduler-generator · nestjs-queue-generator · nestjs-migration-generator · nestjs-config-generator · nestjs-observability-generator · nestjs-notification-generator · nestjs-file-storage-generator · nestjs-websocket-generator · nestjs-api-docs-generator · nestjs-test-generator *(new)* | — |
+| nestjs-domain-generator · nestjs-api-generator · nestjs-auth-generator · nestjs-event-generator · nestjs-messaging-generator · nestjs-cache-generator · nestjs-scheduler-generator · nestjs-queue-generator · nestjs-migration-generator · nestjs-config-generator · nestjs-observability-generator · nestjs-notification-generator · nestjs-file-storage-generator · nestjs-websocket-generator · nestjs-api-docs-generator · nestjs-test-generator · nestjs-integration-generator *(new; feature-orchestrator가 target_stack.backend로 호출)* | nestjs-senior-programmer *(구현 위임)* |
 
-## django/ (19) — Django + DRF 백엔드 (backend 스택 중 django 타깃)
+## django/ (20) — Django + DRF 백엔드 (backend 스택 중 django 타깃)
 | name | invokes |
 |------|---------|
-| django-backend-orchestrator *(new)* | django-initializer, django-model-generator, django-api-generator, django-auth-generator, django-signals-generator, django-celery-generator, django-cache-generator, django-scheduler-generator, django-task-generator, django-migration-generator, django-settings-generator, django-observability-generator, django-notification-generator, django-storage-generator, django-channels-generator, django-api-docs-generator, django-test-generator |
-| django-initializer *(new)* | — |
+| django-backend-orchestrator *(new)* | django-model-generator, django-api-generator, django-auth-generator, django-signals-generator, django-celery-generator, django-cache-generator, django-scheduler-generator, django-task-generator, django-migration-generator, django-settings-generator, django-observability-generator, django-notification-generator, django-storage-generator, django-channels-generator, django-api-docs-generator, django-test-generator |
+| django-initializer *(new)* | django-senior-programmer *(구현 위임)* |
 | django-senior-programmer *(new, 구현 위임; 오케스트레이터 invokes 아님)* | — |
-| django-model-generator · django-api-generator · django-auth-generator · django-signals-generator · django-celery-generator · django-cache-generator · django-scheduler-generator · django-task-generator · django-migration-generator · django-settings-generator · django-observability-generator · django-notification-generator · django-storage-generator · django-channels-generator · django-api-docs-generator · django-test-generator *(new)* | — |
+| django-model-generator · django-api-generator · django-auth-generator · django-signals-generator · django-celery-generator · django-cache-generator · django-scheduler-generator · django-task-generator · django-migration-generator · django-settings-generator · django-observability-generator · django-notification-generator · django-storage-generator · django-channels-generator · django-api-docs-generator · django-test-generator · django-integration-generator *(new; feature-orchestrator가 target_stack.backend로 호출)* | django-senior-programmer *(구현 위임)* |
 
 ## web/ (21) — Next.js
 nextjs-initializer *(fix)*, page-generator, layout-generator, component-generator, form-generator,
@@ -64,37 +64,37 @@ frontend-test-generator, typescript-senior-programmer *(구현 위임, _deprecat
 | name | invokes |
 |------|---------|
 | desktop-orchestrator *(new)* | tauri-initializer, desktop-shell-generator, native-bridge-generator, desktop-storage-generator, desktop-updater-generator, desktop-packaging-generator, desktop-test-generator |
-| tauri-initializer *(new)* | — |
-| desktop-shell-generator *(new)* | — |
-| native-bridge-generator *(new)* | — |
-| desktop-storage-generator *(new)* | — |
-| desktop-updater-generator *(new)* | — |
+| tauri-initializer *(new)* | typescript-senior-programmer *(구현 위임)* |
+| desktop-shell-generator *(new)* | typescript-senior-programmer *(구현 위임)* |
+| native-bridge-generator *(new)* | typescript-senior-programmer *(구현 위임)* |
+| desktop-storage-generator *(new)* | typescript-senior-programmer *(구현 위임)* |
+| desktop-updater-generator *(new)* | typescript-senior-programmer *(구현 위임)* |
 | desktop-packaging-generator *(new)* | — |
-| desktop-test-generator *(new)* | — |
+| desktop-test-generator *(new)* | typescript-senior-programmer *(구현 위임)* |
 
 ## mobile/ (13) — Flutter 모바일 클라이언트 (자체 UI; design-tokens 값 + api-spec 재사용)
 | name | invokes |
 |------|---------|
 | mobile-orchestrator *(new)* | flutter-initializer, flutter-screen-generator, flutter-widget-generator, flutter-navigation-generator, flutter-state-generator, flutter-api-client-generator, flutter-storage-generator, flutter-theme-generator, flutter-form-generator, flutter-notification-generator, flutter-test-generator |
-| flutter-initializer *(new)* | — |
+| flutter-initializer *(new)* | flutter-senior-programmer *(구현 위임)* |
 | flutter-senior-programmer *(new, 구현 위임; 오케스트레이터 invokes 아님)* | — |
-| flutter-screen-generator *(new)* | — |
-| flutter-widget-generator *(new)* | — |
-| flutter-navigation-generator *(new)* | — |
-| flutter-state-generator *(new)* | — |
-| flutter-api-client-generator *(new)* | — |
-| flutter-storage-generator *(new)* | — |
-| flutter-theme-generator *(new)* | — |
-| flutter-form-generator *(new)* | — |
-| flutter-notification-generator *(new)* | — |
-| flutter-test-generator *(new)* | — |
+| flutter-screen-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-widget-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-navigation-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-state-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-api-client-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-storage-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-theme-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-form-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-notification-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
+| flutter-test-generator *(new)* | flutter-senior-programmer *(구현 위임)* |
 
 ## design/ (6) — 디자인 시스템 생성 (design-orchestrator가 조율, frontend에 공급)
 design-tokens-generator, design-system-generator, figma-to-component,
 wireframe-generator, ux-flow-generator, design-validator *(new: 스펙 내부 정합 pass/fail; design-orchestrator가 호출)*
 
-## validator/ (8)
-architecture-validator, backend-validator, frontend-validator, integration-validator,
+## validator/ (10)
+architecture-validator, backend-validator, frontend-validator, mobile-validator *(new: Flutter/Dart 정적 검증 게이트)*, desktop-shell-validator *(new: Tauri 셸/설정/IPC/패키징 게이트)*, integration-validator,
 security-validator, performance-validator *(new)*, dependency-license-validator *(new)*, test-validator
 
 ## code-change/ (4) — 기존 코드 수정/리팩토링/삭제 (생성이 아니라 변경; senior-programmer에 위임)
@@ -165,6 +165,14 @@ security-validator, performance-validator *(new)*, dependency-license-validator 
 
 ## deployment/ (3) — 배포 (컨테이너 없음: CI/CD + 스크립트 + 환경설정)
 deployment-orchestrator *(new)*, cicd-generator *(new)*, env-config-generator *(new)*
+
+## vcs/ (13) — git/VCS 운영 (브랜치 안전; **실행형** 계층 — 실제 git 실행)
+| name | invokes |
+|------|---------|
+| vcs-orchestrator *(new)* | repo-state-validator, branch-strategy-planner, repo-initializer, branch-operator, commit-message-generator, commit-applier, commit-lint-validator, integration-planner, branch-integrator, changelog-generator, pr-description-generator, git-hooks-generator |
+| repo-state-validator · commit-lint-validator *(new: pass/fail 게이트 — 상태 preflight / 커밋·브랜치명 준수)* | — |
+| branch-strategy-planner · commit-message-generator · integration-planner · changelog-generator · pr-description-generator · git-hooks-generator *(new: 플래너/생성기)* | — |
+| repo-initializer · branch-operator · commit-applier · branch-integrator *(new: 오퍼레이터 — git 실행, 브랜치 안전)* | — |
 
 ## research/ (10)
 research-orchestrator, web-search, docs-search, github-search, news-search,
@@ -294,12 +302,12 @@ web-research, compare-sources, fact-check, source-validation *(fix: was search-v
 ## recipe-kitchen/ (6) — 집밥/요리 (여가, 앱 생성과 독립)
 | name | invokes |
 |------|---------|
-| recipe-kitchen-orchestrator *(new)* | pantry-analyzer, recipe-developer, meal-planner, shopping-list-generator, nutrition-balancer |
+| recipe-kitchen-orchestrator *(new)* | pantry-analyzer, recipe-developer, meal-planner, shopping-list-generator, nutrition-validator |
 | pantry-analyzer *(new)* | — |
 | recipe-developer *(new)* | — |
 | meal-planner *(new)* | — |
 | shopping-list-generator *(new)* | — |
-| nutrition-balancer *(new)* | — |
+| nutrition-validator *(new)* | — |
 
 ## quiz-forge/ (6) — 퀴즈/트리비아 (여가, 앱 생성과 독립)
 | name | invokes |
@@ -351,10 +359,16 @@ web-research, compare-sources, fact-check, source-validation *(fix: was search-v
 | playlist-annotator *(new)* | — |
 | playlist-flow-validator *(new)* | — |
 
+## codegen/ (2) — 직렬화 페이로드 → 언어별 타입 모델 (앱 생성과 독립 유틸리티)
+| name | invokes |
+|------|---------|
+| payload-model-generator *(new)* | spring-senior-programmer, kotlin-senior-programmer, typescript-senior-programmer, django-senior-programmer *(언어별 구현 위임)* |
+| kotlin-senior-programmer *(new, 구현 위임; 오케스트레이터 invokes 아님)* | — |
+
 ---
 
 ## 스킬 간 책임 경계 (중복 방지 규칙)
-- **backend 멀티스택**: 세 폴더 `spring/`·`nestjs/`·`django/`는 **모두 `category: backend`** (폴더=스택, category=계층). 즉 backend는 폴더 3개짜리 단일 카테고리(58 스킬). `backend-orchestrator`는 **라우터** — `target_stack.backend` ∈ {spring, nestjs, django}로 `spring-backend-orchestrator`/`nestjs-backend-orchestrator`/`django-backend-orchestrator` 중 **하나만** 위임. 세 스택은 동일한 blueprint(domain-model·database·api-spec·event-topology) 계약을 공유하고, 구현은 각 스택 senior-programmer(spring/nestjs/django)가 담당. `feature-orchestrator`는 변경 없이 `backend-orchestrator`만 호출.
+- **backend 멀티스택**: 세 폴더 `spring/`·`nestjs/`·`django/`는 **모두 `category: backend`** (폴더=스택, category=계층). 즉 backend는 폴더 3개짜리 단일 카테고리(60 스킬). `backend-orchestrator`는 **라우터** — `target_stack.backend` ∈ {spring, nestjs, django}로 `spring-backend-orchestrator`/`nestjs-backend-orchestrator`/`django-backend-orchestrator` 중 **하나만** 위임. 세 스택은 동일한 blueprint(domain-model·database·api-spec·event-topology) 계약을 공유하고, 구현은 각 스택 senior-programmer(spring/nestjs/django)가 담당. `feature-orchestrator`는 변경 없이 `backend-orchestrator`만 호출.
 - **스택별 역량 대응**(같은 역량, 다른 관용구): event→ `event-generator`(Spring)/`nestjs-event-generator`(EventEmitter2)/`django-signals-generator`(signals); messaging→ messaging/`nestjs-messaging-generator`/`django-celery-generator`; batch→ batch/`nestjs-queue-generator`(BullMQ)/`django-task-generator`(management command); scheduler→ scheduler/`nestjs-scheduler-generator`/`django-scheduler-generator`(Celery beat); api-docs→ springdoc/`nestjs-api-docs-generator`(Nest Swagger)/`django-api-docs-generator`(drf-spectacular); config→ config-properties/`nestjs-config-generator`/`django-settings-generator`. 이름은 스택 프리픽스로 구분되어 충돌 없음.
 - **api-generator**(backend, 런타임 코드) ↔ **api-spec-generator**(blueprint, 설계 문서) ↔ **api-docs-generator**(런타임 springdoc/Swagger 애노테이션) ↔ **api-guide-generator**(docwriting, 개발자용 산문 사용 가이드): 넷 다 별개. 코드→애노테이션은 api-docs, 설계 계약은 api-spec, 사람이 읽는 가이드는 api-guide.
 - **doc-style-checker**(docwriting, 산문 톤/용어/일관성 검증) ↔ **validator/***(코드 산출물 검증): 문서는 전자, 코드는 후자.
@@ -381,7 +395,7 @@ web-research, compare-sources, fact-check, source-validation *(fix: was search-v
 - **여가 도메인 추가 6종**(recipe-kitchen·quiz-forge·fitness-coach·event-planner·media-curator·music-curator): 업무용과 동일 패턴(오케스트레이터+워커+검증기). 모두 앱 생성과 독립, 순수 텍스트/플랜 산출.
 - **research 재활용 3종**: trip-planner·media-curator·music-curator가 `research-orchestrator`를 호출해 실제 사실/타이틀/트랙을 수집. 근거 없는 생성 금지, 출처 인용.
 - **media-curator ↔ music-curator**: 전자는 시청/독서(영화·TV·도서), 후자는 청취(트랙·플레이리스트). `taste-profiler`(media) ↔ `music-taste-profiler`(music), `title-finder`(media) ↔ `track-finder`(music) 별개.
-- **여가 검증기**는 각 도메인 전용: nutrition-balancer(영양)·quiz-fairness-validator(퀴즈 공정성)·training-safety-validator(운동 안전)·event-feasibility-validator(행사 실현성)·media-fit-validator(시청 제약)·playlist-flow-validator(재생 흐름). 모두 `validator/*`(코드)와 별개.
+- **여가 검증기**는 각 도메인 전용: nutrition-validator(영양)·quiz-fairness-validator(퀴즈 공정성)·training-safety-validator(운동 안전)·event-feasibility-validator(행사 실현성)·media-fit-validator(시청 제약)·playlist-flow-validator(재생 흐름). 모두 `validator/*`(코드)와 별개.
 - **fitness-coach**는 일반 교육용이며 의료 조언이 아님(안전 검증기·오케스트레이터에 명시). **recipe-kitchen** 영양은 정성적 추정(정확 열량은 별도 도구).
 - **명명 재사용 주의(도메인 스코프)**: `question-generator`(quiz-forge)는 `quest-generator`(game-master)와 철자·역할 모두 별개. `shopping-list-generator`(recipe-kitchen)·`taste-profiler`(media-curator)·`theme-designer`(event-planner)는 각 도메인 고유.
 - **event-generator**(인프로세스 Spring 이벤트) ↔ **messaging-generator**(브로커) ↔ **websocket-generator**(클라이언트 대면 실시간). Redis Pub/Sub은 **messaging-generator 소유**.
@@ -400,10 +414,15 @@ web-research, compare-sources, fact-check, source-validation *(fix: was search-v
 - **env-config-generator**(배포/런타임 env 변수·시크릿 주입) ↔ **config-properties-generator**(Java `@ConfigurationProperties` 타입 바인딩) ↔ **spring-initializer**(기본 application.yml 스캐폴드). 앞의 것이 값을 공급, 뒤의 둘이 소비.
 - **dependency-license-validator**(의존성 CVE/라이선스/버전) ↔ **security-validator**(코드 보안/OWASP). 공급망은 전자, 코드 취약점은 후자.
 - **api-client-generator**는 frontend-orchestrator만 생성한다(feature-orchestrator가 직접 부르는 integration-generator는 외부 HTTP 전송만; 중복 생성 금지).
-- **feature-orchestrator**가 `integration-generator`를 직접 호출한다(얇은 integration-orchestrator 계층은 제거됨). 초기화(`spring-initializer`/`nextjs-initializer`)는 **app-orchestrator**가 feature 루프 이전 1회 실행.
+- **feature-orchestrator**가 스택별 integration 생성기(`integration-generator`(spring)/`nestjs-integration-generator`/`django-integration-generator` 중 `target_stack.backend`로 택1)를 직접 호출한다(얇은 integration-orchestrator 계층은 제거됨). integration은 backend-orchestrator가 아니라 feature-orchestrator 소유(spring 패턴). 초기화(`target_stack.backend`에 맞는 `spring`/`nestjs`/`django-initializer` 택1 + 웹 `nextjs-initializer`)는 **app-orchestrator**가 feature 루프 이전 1회 실행.
 - **클라이언트 멀티타깃**: 세 폴더 `web/`·`desktop/`·`mobile/`는 **모두 `category: frontend`** (폴더=타깃, category=계층). 즉 frontend는 폴더 3개짜리 단일 카테고리(42 스킬). `target_stack.clients`로 선택(기본 `[web]`): `web`=`web/*`(Next.js) ↔ `desktop`=`desktop/*`(Tauri) ↔ `mobile`=`mobile/*`(Flutter). backend(택1)와 달리 clients는 **복수 공존 가능**. `app-orchestrator`가 웹 feature 루프 완료 후 4b 단계에서 선택된 클라이언트 오케스트레이터(`desktop-orchestrator`/`mobile-orchestrator`)를 실행. 웹은 `frontend-orchestrator`가 담당(이름 유지).
 - **desktop/**(신규 카테고리, Tauri): **UI 생성기를 만들지 않는다** — Tauri가 `web/*` React 산출물을 그대로 래핑. `desktop/*`는 네이티브 쉘(`desktop-shell-generator`)·IPC(`native-bridge-generator`)·로컬 저장(`desktop-storage-generator`)·자동 업데이트(`desktop-updater-generator`)·패키징(`desktop-packaging-generator`, dmg/msi/AppImage)·테스트만. 스캐폴드는 `tauri-initializer`. 컨테이너 없음.
 - **native-bridge-generator**(Tauri command: fs/dialog/notification 등 OS 기능)는 서버 HTTP와 별개 — 서버 통신은 재사용된 웹 `api-client-generator` 산출물이 담당.
 - **mobile/**(신규 카테고리, Flutter): **자체 Dart/Flutter UI 생성**(React 재사용 안 함). `design-tokens` 값(→`flutter-theme-generator`, Material 3)과 backend `api-spec`(→`flutter-api-client-generator`, Dio+Freezed)만 계약으로 재사용. 구현 위임은 `flutter-senior-programmer`(생성기가 위임; 오케스트레이터 invokes 아님 — `spring-senior-programmer`/`typescript-senior-programmer`와 동일 패턴).
 - **mobile 이름 충돌 방지**: mobile 스킬은 전부 `flutter-*`/`mobile-*` 접두사. `flutter-state-generator`(Riverpod) ↔ `state-generator`(frontend, React), `flutter-api-client-generator`(Dio) ↔ `api-client-generator`(frontend, fetch), `flutter-theme-generator` ↔ `theme-generator`, `flutter-form-generator` ↔ `form-generator` 모두 별개.
 - **초기화 소유권 4종**: `spring-initializer`(backend) · `nextjs-initializer`(web) · `tauri-initializer`(desktop) · `flutter-initializer`(mobile). 서로 별개이며 각 스택 스캐폴드만 담당.
+- **codegen/**(신규 카테고리, 앱 생성과 독립 유틸리티): **payload-model-generator**는 구체적인 JSON/XML **응답 샘플**을 입력받아 요청 언어(Java·Kotlin·TypeScript·Python)의 타입 모델(DTO/data class/interface)을 직렬화 매핑(Jackson·kotlinx.serialization·class-transformer·Pydantic)까지 포함해 생성. **API 5종 경계**: `api-generator`(런타임 엔드포인트) ↔ `api-spec-generator`(설계 계약) ↔ `api-docs-generator`(springdoc/Swagger 애노테이션) ↔ `api-client-generator`(프론트 HTTP 클라이언트) ↔ `payload-model-generator`(관측된 페이로드 → 모델만). 앞의 넷은 **api-spec 설계 계약**에서 동작, payload-model-generator는 **구체 직렬화 샘플**에서 동작하며 **모델만** 산출(엔드포인트·클라이언트·OpenAPI 생성 안 함). 파이프라인(blueprint/design) 없이 단독 호출 가능.
+- **vcs/**(신규 카테고리, **실행형** — 실제 git 실행): 저장소 상태를 조작하는 운영 계층(code-change/data-change/doc-change와 같은 "변경/운영" 그룹). **브랜치 안전 운영 계약**을 전 스킬 하드 규칙으로 강제 — 보호 브랜치(main/develop)에 직접 커밋·force-push·히스토리 재작성 금지; 모든 작업은 작업 브랜치 경유; 미커밋분 stash-안전; 충돌 시 클린 abort+복구 리포트; 작업 후 원 브랜치 복귀. 계열: 오케스트레이터(`vcs-orchestrator`, git 직접 실행 안 함) / 게이트(`repo-state-validator`, preflight) / 플래너(`branch-strategy-planner`·`commit-message-generator`·`integration-planner`·`changelog-generator`·`pr-description-generator`·`git-hooks-generator`, git 실행 안 함) / 오퍼레이터(`repo-initializer`·`commit-applier`·`branch-integrator`, git 실행). app-orchestrator가 `options.init_vcs`로 선택 호출.
+- **changelog-generator**(vcs, Conventional Commit → 기계적 running log `CHANGELOG.md`) ↔ **release-notes-generator**(docwriting, 릴리스 단위 편집 산문). release-notes가 changelog를 입력으로 재사용(중복 아님).
+- **git-hooks-generator**(vcs, 로컬 pre-commit/commit-msg/pre-push 훅) ↔ **cicd-generator**(deployment, CI 파이프라인). 훅=로컬, cicd=CI; 훅은 CI 체크를 미러링.
+- **branch-integrator**(vcs, 파이프라인 통합 cherry-pick/merge; `integration-planner` 계획 기반) ↔ **jmpark-git-cherry-picker**(PC 전역 애드혹 단독 운영 스킬). 같은 stash-안전·no-force·복귀 패턴을 공유하되 스코프가 다름(파이프라인 통합 vs 임의 저장소 즉석).
